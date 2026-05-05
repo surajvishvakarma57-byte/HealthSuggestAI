@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 
 const B = "#5478FF";
@@ -115,11 +114,6 @@ export default function App() {
   const [recStage, setRecStage] = useState(null);
   const [showMenu, setShowMenu] = useState(false);
 
-  // Save compare list per user
-  useEffect(() => {
-    if (user) { const uid = user.id || user._id || user.email; ls("hs_cmp_" + uid, cmpIds); }
-  }, [cmpIds, user]);
-
   // Check backend on mount and load plans
   useEffect(() => {
     (async () => {
@@ -149,10 +143,7 @@ export default function App() {
       // Backend auth worked
       ls("hs_token", res.token);
       ls("hs_user", res.data);
-      // Restore this user's saved data
-      const uid = res.data.id || res.data._id || res.data.email;
-      const savedCmp = ls("hs_cmp_" + uid) || [];
-      setUser(res.data); setShow(false); setRecs([]); setCmpIds(savedCmp); setSel(null); setTab("recommend"); setRecStage(null);
+      setUser(res.data);
       setAuthBusy(false);
       return;
     }
@@ -185,7 +176,7 @@ export default function App() {
     setAuthBusy(false);
   };
 
-  const logout = () => { ls("hs_user", null); ls("hs_token", null); setUser(null); setShow(false); setRecs([]); setCmpIds([]); setSel(null); setTab("recommend"); setRecStage(null); setShowMenu(false); };
+  const logout = () => { ls("hs_user", null); ls("hs_token", null); setUser(null); setShow(false); setRecs([]); };
 
   const tabs = [{ id: "recommend", label: "AI Recommend", icon: "🤖" }, { id: "browse", label: "All Plans", icon: "📋" }, { id: "compare", label: "Compare" + (cmpIds.length ? " (" + cmpIds.length + ")" : ""), icon: "⚖️" }, { id: "report", label: "Risk Report", icon: "📊" }];
   const pOpts = [{ id: "network", label: "🏥 Hospitals" }, { id: "premium", label: "💰 Low Cost" }, { id: "coverage", label: "🛡️ Coverage" }, { id: "restoration", label: "🔄 Restore" }];
@@ -253,10 +244,9 @@ export default function App() {
     <div style={{ background: "var(--bg)", minHeight: "100vh", color: "var(--t1)", fontFamily: ff, display: "flex", flexDirection: "column" }}>
       <header style={{ background: "var(--bg2)", borderBottom: "1px solid var(--bdr)", padding: "14px 24px", position: "sticky", top: 0, zIndex: 100, backdropFilter: "blur(16px)" }}>
         <div style={{ maxWidth: 1400, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}><div style={{ width: 38, height: 38, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", background: B, fontSize: 16, fontWeight: 800, color: "#fff" }}>P</div><div><div style={{ fontSize: 16, fontWeight: 700 }}>PolicyDoctor<span style={{ color: B }}>AI</span></div><div style={{ fontSize: 10, color: "var(--t3)", display: "flex", alignItems: "center", gap: 4 }}><span style={{ width: 6, height: 6, borderRadius: "50%", background: apiOk ? "var(--green)" : "var(--warm)" }}></span>{apiOk ? "API Connected" : "Offline Mode"}</div></div></div>
+          <div onClick={() => { setTab("recommend"); setSel(null); setShow(false); }} style={{ display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }} title="Go to home"><div style={{ width: 38, height: 38, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", background: B, fontSize: 16, fontWeight: 800, color: "#fff" }}>P</div><div><div style={{ fontSize: 16, fontWeight: 700 }}>PolicyDoctor<span style={{ color: B }}>AI</span></div><div style={{ fontSize: 10, color: "var(--t3)", display: "flex", alignItems: "center", gap: 4 }}><span style={{ width: 6, height: 6, borderRadius: "50%", background: apiOk ? "var(--green)" : "var(--warm)" }}></span>{apiOk ? "API Connected" : "Offline Mode"}</div></div></div>
           <div style={{ display: "flex", alignItems: "center", gap: 4, overflowX: "auto", WebkitOverflowScrolling: "touch" }}>{tabs.map(t => <button key={t.id} onClick={() => { setTab(t.id); setSel(null); }} style={{ display: "flex", alignItems: "center", gap: 5, padding: "7px 12px", borderRadius: 8, border: "none", background: tab === t.id ? B + "15" : "transparent", color: tab === t.id ? B : "var(--t3)", fontSize: 12, fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap", fontFamily: ff, transition: "all 0.2s" }}>{t.icon} {t.label}</button>)}</div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <button onClick={() => setShowMenu(!showMenu)} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 12px", borderRadius: 8, background: "var(--card)", border: "1px solid var(--bdr)", cursor: "pointer", fontFamily: ff }}><div style={{ width: 28, height: 28, borderRadius: 7, background: B, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, color: "#fff" }}>{(user.name || "U")[0]}</div><span style={{ fontSize: 12, fontWeight: 600, color: "var(--t1)" }}>{user.name}</span></button>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}><button onClick={() => setShowMenu(!showMenu)} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 12px", borderRadius: 8, background: "var(--card)", border: "1px solid var(--bdr)", cursor: "pointer", fontFamily: ff }}><div style={{ width: 28, height: 28, borderRadius: 7, background: B, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, color: "#fff" }}>{(user.name || "U")[0]}</div><span style={{ fontSize: 12, fontWeight: 600, color: "var(--t1)" }}>{user.name}</span></button>
             {showMenu && <button onClick={logout} style={{ padding: "7px 14px", borderRadius: 8, border: "none", background: "rgba(220,38,38,0.1)", color: "var(--red)", fontSize: 11, fontWeight: 600, cursor: "pointer", fontFamily: ff, animation: "fadeIn 0.2s ease" }}>Logout</button>}
           </div>
         </div>
@@ -275,7 +265,108 @@ export default function App() {
             {show && recs.length > 0 && <div style={{ marginTop: 14, padding: 12, background: B + "0D", borderRadius: 8, border: "1px solid " + B + "33" }}><div style={{ fontSize: 10, color: B, fontWeight: 600 }}>TOP MATCH</div><div style={{ fontSize: 12, color: "var(--t2)", lineHeight: 1.6 }}><strong style={{ color: "var(--t1)" }}>{recs[0].name}</strong> ({recs[0].score}%)</div></div>}
           </aside>
           <div key="recommend" style={{ animation: "fadeIn 0.4s ease" }}>
-            {!sel && (<div><h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 6 }}>{recStage ? "AI Analysis in Progress" : show ? "Your Recommendations" : "AI Plan Finder"}</h1><p style={{ fontSize: 13, color: "var(--t3)", marginBottom: 20 }}>{recStage ? "Please wait while our AI analyzes your profile..." : show ? "Top " + recs.length + " plans ranked by AI" + (apiOk ? " · ⚡ Powered by Groq LLaMA" : "") : "Fill profile and click Get Recommendations"}</p>{recStage ? <div style={{ textAlign: "center", padding: "60px 20px" }}><div style={{ width: 80, height: 80, borderRadius: 20, margin: "0 auto 24px", background: B + "15", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 36, animation: "pulse 1.5s infinite" }}>⚡</div><div style={{ display: "flex", flexDirection: "column", gap: 16, maxWidth: 360, margin: "0 auto" }}>{[{ k: "analyzing", icon: "🔍", label: "Analyzing your profile & risk factors" }, { k: "extracting", icon: "📊", label: "Extracting market data & CSR ratings" }, { k: "matching", icon: "🎯", label: "Matching best plans for your needs" }].map((s, i) => { const done = s.k === "analyzing" && recStage !== "analyzing" || s.k === "extracting" && recStage === "matching"; const active = s.k === recStage; return <div key={s.k} style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 18px", borderRadius: 12, background: active ? B + "12" : done ? "rgba(74,222,128,0.08)" : "var(--inp)", border: "1px solid " + (active ? B + "33" : done ? "rgba(74,222,128,0.2)" : "var(--bdr)"), transition: "all 0.4s" }}><div style={{ width: 36, height: 36, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", background: active ? B : done ? "var(--green)" : "var(--inp)", fontSize: 16, transition: "all 0.3s" }}>{done ? "✓" : s.icon}</div><div style={{ flex: 1, textAlign: "left" }}><div style={{ fontSize: 13, fontWeight: 600, color: active ? "var(--t1)" : done ? "var(--green)" : "var(--t3)" }}>{s.label}</div>{active && <div style={{ fontSize: 11, color: B, marginTop: 2 }}>Processing...</div>}</div></div> })}</div></div> : show ? <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(290px,1fr))", gap: 16 }}>{recs.map(p => <PCard key={p.id} pl={p} prof={prof} onCmp={id => setCmpIds(c => c.includes(id) ? c.filter(x => x !== id) : c.length < 4 ? [...c, id] : c)} isCmp={cmpIds.includes(p.id)} onSel={setSel} />)}</div> : <div style={{ textAlign: "center", padding: "70px 20px" }}><div style={{ fontSize: 52, marginBottom: 16 }}>🏥</div><div style={{ fontSize: 20, fontWeight: 700, marginBottom: 8 }}>Find Your Perfect Plan</div><div style={{ fontSize: 13, color: "var(--t3)", maxWidth: 400, margin: "0 auto", lineHeight: 1.7 }}>Enter your details and get personalized recommendations.</div></div>}</div>)}
+            {!sel && (<div><h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 6 }}>{recStage ? "AI Analysis in Progress" : show ? "Your Recommendations" : "AI Plan Finder"}</h1><p style={{ fontSize: 13, color: "var(--t3)", marginBottom: 20 }}>{recStage ? "Please wait while our AI analyzes your profile..." : show ? "Top " + recs.length + " plans ranked by AI" + (apiOk ? " · ⚡ Powered by Groq LLaMA" : "") : "Fill profile and click Get Recommendations"}</p>{recStage ? <div style={{ textAlign: "center", padding: "60px 20px" }}><div style={{ width: 80, height: 80, borderRadius: 20, margin: "0 auto 24px", background: B + "15", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 36, animation: "pulse 1.5s infinite" }}>⚡</div><div style={{ display: "flex", flexDirection: "column", gap: 16, maxWidth: 360, margin: "0 auto" }}>{[{ k: "analyzing", icon: "🔍", label: "Analyzing your profile & risk factors" }, { k: "extracting", icon: "📊", label: "Extracting market data & CSR ratings" }, { k: "matching", icon: "🎯", label: "Matching best plans for your needs" }].map((s, i) => { const done = s.k === "analyzing" && recStage !== "analyzing" || s.k === "extracting" && recStage === "matching"; const active = s.k === recStage; return <div key={s.k} style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 18px", borderRadius: 12, background: active ? B + "12" : done ? "rgba(74,222,128,0.08)" : "var(--inp)", border: "1px solid " + (active ? B + "33" : done ? "rgba(74,222,128,0.2)" : "var(--bdr)"), transition: "all 0.4s" }}><div style={{ width: 36, height: 36, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", background: active ? B : done ? "var(--green)" : "var(--inp)", fontSize: 16, transition: "all 0.3s" }}>{done ? "✓" : s.icon}</div><div style={{ flex: 1, textAlign: "left" }}><div style={{ fontSize: 13, fontWeight: 600, color: active ? "var(--t1)" : done ? "var(--green)" : "var(--t3)" }}>{s.label}</div>{active && <div style={{ fontSize: 11, color: B, marginTop: 2 }}>Processing...</div>}</div></div> })}</div></div> : show ? <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(290px,1fr))", gap: 16 }}>{recs.map(p => <PCard key={p.id} pl={p} prof={prof} onCmp={id => setCmpIds(c => c.includes(id) ? c.filter(x => x !== id) : c.length < 4 ? [...c, id] : c)} isCmp={cmpIds.includes(p.id)} onSel={setSel} />)}</div> : <div style={{ display: "flex", flexDirection: "column", gap: 24, paddingTop: 8 }}>
+              {/* Hero Banner */}
+              <div style={{ background: `linear-gradient(135deg, ${B}15 0%, ${B}05 100%)`, borderRadius: 18, padding: "36px 32px", border: "1px solid var(--bdrA)", position: "relative", overflow: "hidden" }}>
+                <div style={{ position: "absolute", top: -30, right: -30, width: 180, height: 180, borderRadius: "50%", background: B + "12" }}></div>
+                <div style={{ position: "absolute", bottom: -40, right: 60, width: 120, height: 120, borderRadius: "50%", background: B + "08" }}></div>
+                <div style={{ position: "relative", zIndex: 1 }}>
+                  <h1 style={{ fontSize: 32, fontWeight: 800, color: "var(--t1)", marginBottom: 10, lineHeight: 1.2, letterSpacing: "-0.5px" }}>Find Your Perfect<br />Health Insurance Plan</h1>
+                  <p style={{ fontSize: 14, color: "var(--t2)", maxWidth: 520, lineHeight: 1.6, marginBottom: 0 }}>Get AI-powered personalized recommendations from India's top insurers. Compare plans, analyze coverage, and make informed decisions in seconds — not hours.</p>
+                </div>
+              </div>
+
+              {/* Stats Row */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(160px,1fr))", gap: 12 }}>
+                {[
+                  { n: "10+", l: "Top Insurers", ic: "🏛️", c: B },
+                  { n: "50,000+", l: "Network Hospitals", ic: "🏥", c: "var(--green)" },
+                  { n: "95%+", l: "Avg Claim Settlement", ic: "✅", c: "var(--warm)" },
+                  { n: "6 sec", l: "AI Analysis Time", ic: "⚡", c: "var(--purple)" },
+                ].map((s, i) => (
+                  <div key={i} style={{ background: "var(--card)", borderRadius: 12, padding: "18px 16px", border: "1px solid var(--bdr)", borderLeft: "3px solid " + s.c }}>
+                    <div style={{ fontSize: 22, marginBottom: 6 }}>{s.ic}</div>
+                    <div style={{ fontSize: 22, fontWeight: 700, color: "var(--t1)", lineHeight: 1 }}>{s.n}</div>
+                    <div style={{ fontSize: 11, color: "var(--t3)", marginTop: 4 }}>{s.l}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* How It Works */}
+              <div style={{ background: "var(--card)", borderRadius: 14, padding: 24, border: "1px solid var(--bdr)" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 18 }}>
+                  <div style={{ width: 28, height: 28, borderRadius: 7, background: B + "15", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14 }}>📋</div>
+                  <h2 style={{ fontSize: 17, fontWeight: 700, color: "var(--t1)" }}>How It Works</h2>
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))", gap: 16 }}>
+                  {[
+                    { step: "01", t: "Fill Your Profile", d: "Tell us your age, salary, family size, and health needs", ic: "👤" },
+                    { step: "02", t: "AI Analyzes Plans", d: "Our AI scans 10+ top insurers and matches them to you", ic: "🔍" },
+                    { step: "03", t: "Get Smart Match", d: "Receive 5 personalized plans with scores & explanations", ic: "🎯" },
+                    { step: "04", t: "Compare & Choose", d: "Compare side-by-side and visit insurer to apply", ic: "✨" },
+                  ].map((s, i) => (
+                    <div key={i} style={{ position: "relative", padding: "16px 14px", borderRadius: 10, background: "var(--inp)", border: "1px solid var(--bdr)" }}>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+                        <div style={{ fontSize: 24 }}>{s.ic}</div>
+                        <div style={{ fontSize: 11, fontWeight: 800, color: B, letterSpacing: "1px" }}>{s.step}</div>
+                      </div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: "var(--t1)", marginBottom: 4 }}>{s.t}</div>
+                      <div style={{ fontSize: 11, color: "var(--t3)", lineHeight: 1.5 }}>{s.d}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Features Grid */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 14 }}>
+                {[
+                  { ic: "🤖", t: "AI-Powered Matching", d: "LLaMA 3.1 analyzes your profile to find the most suitable health insurance plans — not generic suggestions.", c: B },
+                  { ic: "⚖️", t: "Side-by-Side Compare", d: "Compare up to 4 plans across 10 critical features: CSR, room rent, PED waiting, restoration, NCB and more.", c: "var(--purple)" },
+                  { ic: "💬", t: "24/7 AI Assistant", d: "Ask any question about health insurance — premiums, claims, coverage — get instant expert answers.", c: "var(--green)" },
+                  { ic: "📊", t: "Risk Assessment", d: "Get a personalized risk report with recommended sum insured and tax savings under Section 80D.", c: "var(--warm)" },
+                  { ic: "🔒", t: "Bank-Grade Security", d: "Your data is encrypted with bcrypt password hashing and stored securely in MongoDB Atlas.", c: "var(--red)" },
+                  { ic: "🔗", t: "Direct Insurer Links", d: "No middlemen. Click through to the insurer's official website to read policy docs and apply.", c: "#06B6D4" },
+                ].map((f, i) => (
+                  <div key={i} style={{ background: "var(--card)", borderRadius: 12, padding: 18, border: "1px solid var(--bdr)", transition: "all 0.2s", cursor: "default" }} onMouseEnter={e => { e.currentTarget.style.borderColor = f.c + "66"; e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 6px 20px rgba(0,0,0,0.05)" }} onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--bdr)"; e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "none" }}>
+                    <div style={{ width: 42, height: 42, borderRadius: 10, background: f.c + "15", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, marginBottom: 12 }}>{f.ic}</div>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: "var(--t1)", marginBottom: 6 }}>{f.t}</div>
+                    <div style={{ fontSize: 12, color: "var(--t3)", lineHeight: 1.6 }}>{f.d}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Trusted Insurers */}
+              <div style={{ background: "var(--card)", borderRadius: 14, padding: 24, border: "1px solid var(--bdr)" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14, flexWrap: "wrap", gap: 8 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <div style={{ width: 28, height: 28, borderRadius: 7, background: "var(--green)15", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14 }}>🏛️</div>
+                    <h2 style={{ fontSize: 17, fontWeight: 700, color: "var(--t1)" }}>Trusted Insurers We Cover</h2>
+                  </div>
+                  <span style={{ fontSize: 11, color: "var(--t3)" }}>Updated Jan 2026</span>
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(150px,1fr))", gap: 10 }}>
+                  {[
+                    { n: "HDFC ERGO", l: "🏛️" }, { n: "Aditya Birla", l: "🌿" }, { n: "Care Health", l: "💙" }, { n: "Niva Bupa", l: "🛡️" }, { n: "Star Health", l: "⭐" }, { n: "Bajaj Allianz", l: "🔷" }, { n: "ManipalCigna", l: "🏥" }, { n: "ICICI Lombard", l: "🌐" }, { n: "Tata AIA", l: "🔰" }, { n: "Go Digit", l: "📱" },
+                  ].map((ins, i) => (
+                    <div key={i} style={{ padding: "10px 12px", borderRadius: 8, background: "var(--inp)", border: "1px solid var(--bdr)", display: "flex", alignItems: "center", gap: 8 }}>
+                      <span style={{ fontSize: 18 }}>{ins.l}</span>
+                      <span style={{ fontSize: 12, fontWeight: 600, color: "var(--t2)" }}>{ins.n}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* CTA */}
+              <div style={{ background: `linear-gradient(135deg, ${B} 0%, #3B5BDB 100%)`, borderRadius: 14, padding: "24px 28px", color: "#fff", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 16, boxShadow: "0 8px 28px rgba(84,120,255,0.25)" }}>
+                <div>
+                  <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 4 }}>Ready to find your perfect plan?</div>
+                  <div style={{ fontSize: 13, opacity: 0.85 }}>Fill the profile on the left and let AI do the heavy lifting.</div>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 18px", borderRadius: 10, background: "rgba(255,255,255,0.15)", fontSize: 13, fontWeight: 600, backdropFilter: "blur(10px)" }}>
+                  <span>👈</span> Start with your profile
+                </div>
+              </div>
+            </div>}</div>)}
             {sel && <Det pl={sel} prof={prof} onBack={() => setSel(null)} />}
           </div>
         </div>
