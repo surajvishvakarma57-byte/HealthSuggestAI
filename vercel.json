@@ -1,0 +1,12 @@
+{
+    "rewrites": [
+        {
+            "source": "/admin",
+            "destination": "https://policydoctorai-admin.vercel.app/"
+        },
+        {
+            "source": "/admin/:path*",
+            "destination": "https://policydoctorai-admin.vercel.app/:path*"
+        }
+    ]
+}
