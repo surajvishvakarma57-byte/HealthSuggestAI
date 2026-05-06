@@ -1,12 +1,14 @@
 {
-    "rewrites": [
+    "redirects": [
         {
             "source": "/admin",
-            "destination": "https://policydoctorai-admin.vercel.app/"
+            "destination": "https://policydoctorai-admin.vercel.app",
+            "permanent": false
         },
         {
             "source": "/admin/:path*",
-            "destination": "https://policydoctorai-admin.vercel.app/:path*"
+            "destination": "https://policydoctorai-admin.vercel.app/:path*",
+            "permanent": false
         }
     ]
 }
