@@ -1,12 +1,12 @@
 {
     "redirects": [
         {
-            "source": "/admin",
+            "source": "/login/admin",
             "destination": "https://policydoctorai-admin.vercel.app",
             "permanent": false
         },
         {
-            "source": "/admin/:path*",
+            "source": "/login/admin/:path*",
             "destination": "https://policydoctorai-admin.vercel.app/:path*",
             "permanent": false
         }
